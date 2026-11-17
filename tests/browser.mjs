@@ -1,0 +1,57 @@
+import { chromium } from '@playwright/test';
+import { resolve } from 'node:path';
+import assert from 'node:assert/strict';
+const extension = resolve('.output/chrome-mv3');
+const browser = await chromium.launchPersistentContext('', { channel: 'chromium', headless: true, args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`] });
+try {
+  // Prevent test alarms from sending requests to the real booking website.
+  await browser.route('https://eticket.railway.gov.bd/**', route => route.fulfill({ body: '<h1>Railway test placeholder</h1>', contentType: 'text/html' }));
+  const worker = browser.serviceWorkers()[0] ?? await browser.waitForEvent('serviceworker');
+  const id = new URL(worker.url()).host;
+  const page = await browser.newPage();
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  await page.goto(`chrome-extension://${id}/planner.html`);
+  await page.getByText('A journey starts with a plan.').waitFor();
+  const start = new Date(Date.now() + 3600000);
+  const dhaka = date => new Date(date.getTime() + 6 * 3600000).toISOString().slice(0, 16);
+  await page.locator('[name=origin]').fill('Dhaka');
+  await page.locator('[name=destination]').fill('Chattogram');
+  await page.locator('[name=travelDate]').fill(dhaka(new Date(start.getTime() + 86400000)).slice(0, 10));
+  await page.locator('[name=departureTime]').fill('09:00');
+  await page.locator('[name=train]').fill('Test train');
+  await page.locator('[name=passengers]').fill('2');
+  for (let i = 0; i < 5; i++) await page.locator(`[name=seat${i}]`).fill(`A${i+1}`);
+  await page.locator('[name=bookingStart]').fill(dhaka(start));
+  await page.locator('[name=allowAlternates]').check();
+  await page.locator('[name=alternateMinutes]').fill('60');
+  await page.getByRole('button', { name: 'Schedule start' }).click();
+  await page.locator('.plan').waitFor();
+  await page.getByText('Start scheduled. Automatic seat selection is not available in this version.', { exact: true }).waitFor();
+  assert.equal(await page.locator('[name=origin]').inputValue(), '');
+  let saved = await worker.evaluate(async () => (await chrome.storage.local.get('bookings')).bookings);
+  assert.equal(saved.length, 1); assert.equal(saved[0].alternateMinutes, 60); assert.equal(saved[0].status, 'scheduled');
+  assert.ok(await worker.evaluate(async id => !!(await chrome.alarms.get(id)), saved[0].id));
+  await page.reload(); await page.locator('.plan').waitFor();
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.locator('[name=passengers]').fill('3');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await page.getByText('3 passenger(s)', { exact: false }).waitFor();
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.locator('.status').filter({ hasText: 'cancelled' }).waitFor();
+  assert.equal(await worker.evaluate(async id => await chrome.alarms.get(id), saved[0].id), undefined);
+  await page.getByRole('button', { name: 'Reschedule' }).click();
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await page.locator('.status').filter({ hasText: 'scheduled' }).waitFor();
+  // Fire a real alarm with a shifted worker clock to exercise the scheduled run.
+  await worker.evaluate(async id => {
+    const { bookings } = await chrome.storage.local.get('bookings');
+    const target = Date.parse(bookings[0].bookingStart + ':00+06:00');
+    const realNow = Date.now(); Date.now = () => target + 1000;
+    await chrome.alarms.create(id, { when: realNow + 1000 });
+  }, saved[0].id);
+  await page.locator('.status').filter({ hasText: 'opened' }).waitFor({ timeout: 20000 });
+  assert.equal(browser.pages().filter(p => p.url().startsWith('https://eticket.railway.gov.bd')).length, 1);
+  assert.deepEqual(errors, []);
+  await page.screenshot({ path: '.tools/planner-preview.png', fullPage: true });
+  console.log('PASS: extension form, save, persistence, edit, cancel, reschedule, real alarm and one site tab.');
+} finally { await browser.close(); }

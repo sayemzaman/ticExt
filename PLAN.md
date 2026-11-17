@@ -44,11 +44,11 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 ### First usable version
 
-- [ ] Scaffold the Manifest V3 extension and document build, test, and local loading commands.
-- [ ] Build the booking request form with separate travel and booking start dates/times, route, passenger count, class ranking, five specific seat numbers, and a per-request alternate-train choice.
-- [ ] Validate dates, passenger limits, route, and the preference order; persist the request locally.
+- [x] Scaffold the Manifest V3 extension and document build, test, and local loading commands.
+- [x] Build the booking request form with separate travel and booking start dates/times, route, passenger count, class ranking, five specific seat numbers, and a per-request alternate-train choice.
+- [x] Validate dates, passenger limits, route, and the preference order; persist the request locally. Initial count range is 1–4; confirm current railway limit during site inspection.
 - [ ] Show probable train options and let the user choose one.
-- [ ] Schedule, edit, cancel, restore, and display pending booking starts and statuses.
+- [x] Schedule, edit, cancel, restore, and display pending booking starts and statuses.
 - [ ] Open the official site at the scheduled time and fill the supported search and selection steps.
 - [ ] Handle unavailable trains/classes/seats with the saved fallback rules; stop and report when alternates are disabled, keep multiple passengers together, and show the chosen option and fare.
 - [ ] Hand off login and verification when required; stop before payment and detect and report official confirmation after the user finishes checkout.
@@ -66,6 +66,18 @@ The five seat preferences are specific seat numbers in priority order. When book
 2. What is the maximum acceptable fare before handing off to payment?
 3. If alternate trains are allowed, how close to the selected departure time may they be? Should the extension stop when both preferred classes are unavailable?
 4. Will the extension be used on one logged-in Chrome profile on a computer that stays awake at booking time? All times are assumed to use Asia/Dhaka unless you prefer otherwise.
+
+## Implementation handoff
+
+The first scaffold implements a planner page, serialized background storage updates, alarms, editing/cancellation, startup alarm restoration, and a two-minute late-start cutoff. The selected train is entered manually until live schedules are connected. Saved alternate-train timing is configurable (initial value 120 minutes). Only the two preferred classes are allowed by the planned automation.
+
+At the scheduled start, the extension opens the official home page and explicitly reports that search and seat selection are not connected. There is no content script or request to a booking endpoint yet. The next integration task is inspection of the live site, including coach/seat map coordinates and session requirements, before adding automatic selections. Do not mark a booking successful merely because a tab opened.
+
+Build and type-check pass. Unit tests cover validation, Bangladesh timezone conversion, and the late-start cutoff. See README.md for commands and the isolated browser test. npm audit has an unresolved picomatch advisory in development dependencies, documented in README.md.
+
+Browser verification passed the real extension form, persistence after page reload, editing, cancellation and alarm removal, rescheduling, and a real alarm opening one railway tab. Tests intercept all railway traffic. A visual check found and fixed a form reset naming collision; the browser test now verifies the form clears successfully after saving.
+
+Public homepage inspected in an isolated browser on 2026-11-18: route inputs are named `dest_from` and `dest_to`; the date field says `Pick a date`; a class dropdown and `SEARCH TRAINS` button are present. The class options are reflected in the form. Login/verification, search results, coach layouts, and the payment boundary still need inspection. No booking request or seat reservation was made.
 
 ## References
 

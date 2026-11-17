@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ticExt · Journey planner</title></head>
+<body>
+<header><a class="brand" href="#">tic<span>Ext</span></a><span class="tag">BANGLADESH RAILWAY PLANNER</span><span class="zone">Asia/Dhaka · UTC+6</span></header>
+<main>
+<section class="intro"><p class="eyebrow">A LITTLE PLANNING. A BETTER JOURNEY.</p><h1>Your next journey,<br><em>planned ahead.</em></h1><p>Choose your journey and seat preferences.<br>Set when you want the booking attempt to begin.</p></section>
+<div class="notice"><strong>Early version</strong> Scheduling opens the official railway site. Automatic train search and seat selection are still being connected. Keep Chrome open and your computer awake; starts can be delayed.</div>
+<div class="layout"><form id="booking-form">
+<section class="panel"><div class="section-title"><span class="step">01</span><h2>The journey</h2></div>
+<div class="fields"><label>From<input name="origin" required maxlength="80" placeholder="Departure station" autocomplete="off"></label><label>To<input name="destination" required maxlength="80" placeholder="Destination station" autocomplete="off"></label><label>Travel date<input type="date" name="travelDate" required></label><label>Passengers<input type="number" name="passengers" min="1" max="4" value="1" required></label></div>
+<div class="helper">Live train schedules are not connected yet. <button type="button" class="text-button" id="search-site">Check the official schedule ↗</button>, then enter your train below.</div>
+<div class="fields"><label>Train name or number<input name="train" required maxlength="100" placeholder="From the official search"></label><label>Train departure time<input type="time" name="departureTime" required></label></div>
+</section>
+<section class="panel"><div class="section-title"><span class="step">02</span><h2>Make yourself comfortable</h2></div>
+<div class="fields"><label>First choice class<select name="firstClass" required></select></label><label>Second choice class<select name="secondClass" required></select></label></div>
+<label class="seat-label">Five preferred seat numbers <span>Best choice first</span></label><div class="seats" id="seat-inputs"></div>
+<p class="helper">Passengers stay together. We’ll prefer a group containing your chosen seats, then a group nearby. Actual availability is confirmed on the railway site.</p>
+</section>
+<section class="panel"><div class="section-title"><span class="step">03</span><h2>When to start booking</h2></div>
+<label>Booking start · Bangladesh time<input type="datetime-local" name="bookingStart" required></label>
+<p class="helper">This is separate from your travel time. If the start is missed by more than two minutes, the request is marked missed for you to reschedule.</p>
+<label class="check"><input type="checkbox" name="allowAlternates">Try another train if my first choice is unavailable</label>
+<label id="alternate-window" hidden>Maximum difference from departure (minutes)<input type="number" name="alternateMinutes" min="1" max="720" value="120"></label>
+<p class="helper">Only your two preferred classes. Stop before payment so you can review and pay.</p>
+</section>
+<p id="form-message" role="status" aria-live="polite"></p><div class="form-actions"><button type="button" id="clear-form" class="secondary">Clear</button><button type="submit" id="submit">Schedule start →</button></div>
+</form>
+<aside><section class="panel saved-panel"><div class="saved-heading"><h2>Your plans</h2><span id="plan-count">0</span></div><p class="helper">Saved on this Chrome profile.</p><div id="plans"></div></section><div class="footnote"><span>✓</span><p><strong>You’re in control.</strong><br>Review and complete payment on the official railway site. A scheduled start is not a confirmed ticket.</p></div></aside></div>
+</main><footer>ticExt · Plan ahead. Travel together.</footer>
+<script type="module" src="./main.ts"></script></body></html>
+

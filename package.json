@@ -1,0 +1,1 @@
+{"name":"ticext","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"wxt","build":"wxt build","typecheck":"wxt prepare && tsc --noEmit","test":"node --experimental-strip-types --test tests/*.test.ts","postinstall":"wxt prepare"},"devDependencies":{"@playwright/test":"^1.65.1","@types/chrome":"^0.1.32","typescript":"^5.9.3","wxt":"^0.21.5"}}
