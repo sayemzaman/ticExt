@@ -12,7 +12,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 1. Create one booking request with travel date, origin, destination, passenger count, and a separate booking start date and time.
 2. Show likely trains for that route and travel date. The user chooses a train departure time from the list.
-3. Collect first and second class choices plus five ranked individual seat numbers. For multiple passengers, consider only groups seated together. Rank groups containing preferred seats first, then choose the nearest available together-seated group if none contains a preferred seat.
+3. Collect first and second class choices plus five ranked individual seat numbers. For multiple passengers, consider only groups seated together. Rank groups containing preferred seats first, then choose the nearest available together-seated group if none contains a preferred seat. The user chooses per request whether an unavailable train should trigger a search for another nearby train or stop for their decision.
 4. Save the request locally and show its status and countdown.
 5. At the agreed booking start time, open the official site, search for the journey, and select an available option according to the saved ranking.
 6. Show the selected train, class, seats, and fare. Stop before payment and let the user finish checkout. Mark success only after the official site confirms the ticket.
@@ -36,6 +36,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [x] Confirm a separate booking start time, origin chosen for each trip, and a stop before payment.
 - [x] Confirm that multiple passengers must sit together.
 - [x] Confirm the seat fallback: choose another group together, as near as possible to preferred seats.
+- [x] Confirm that each booking request lets the user decide whether to try another train when the selected train is unavailable.
 - [ ] Resolve the open product questions below.
 - [ ] Inspect the current official booking UI, train search, seat map, login/verification, and payment flow using a test journey.
 - [ ] Check current site rules and Chrome Web Store requirements before implementing site automation.
@@ -44,12 +45,12 @@ The five seat preferences are specific seat numbers in priority order. When book
 ### First usable version
 
 - [ ] Scaffold the Manifest V3 extension and document build, test, and local loading commands.
-- [ ] Build the booking request form with separate travel and booking start dates/times, route, passenger count, class ranking, and five specific seat numbers.
+- [ ] Build the booking request form with separate travel and booking start dates/times, route, passenger count, class ranking, five specific seat numbers, and a per-request alternate-train choice.
 - [ ] Validate dates, passenger limits, route, and the preference order; persist the request locally.
 - [ ] Show probable train options and let the user choose one.
 - [ ] Schedule, edit, cancel, restore, and display pending booking starts and statuses.
 - [ ] Open the official site at the scheduled time and fill the supported search and selection steps.
-- [ ] Handle unavailable trains/classes/seats with the agreed fallback rules; keep multiple passengers together and show the chosen option and fare.
+- [ ] Handle unavailable trains/classes/seats with the agreed fallback rules; respect the per-request alternate-train choice, keep multiple passengers together, and show the chosen option and fare.
 - [ ] Hand off login and verification when required; stop before payment and detect and report official confirmation after the user finishes checkout.
 - [ ] Test the form, scheduling, missed alarms, fallback logic, and at least one supervised end-to-end trial.
 
@@ -63,7 +64,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 1. Are seat numbers and seat-map positions stable across trains and classes on the current site? How should distance be measured when the map does not show physical proximity clearly?
 2. What is the maximum acceptable fare before handing off to payment?
-3. When the first train or class is unavailable, may the extension switch to another train or class automatically? In what order?
+3. If alternate trains are allowed, how close to the selected departure time may they be? Should the extension stop when both preferred classes are unavailable?
 4. Will the extension be used on one logged-in Chrome profile on a computer that stays awake at booking time? All times are assumed to use Asia/Dhaka unless you prefer otherwise.
 
 ## References
