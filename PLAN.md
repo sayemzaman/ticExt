@@ -6,13 +6,13 @@ Last reviewed: 2026-11-18 (Bangladesh time)
 
 Prepare a Bangladesh Railway ticket request in a Chrome extension. For each trip, the user chooses a travel date and train departure time, origin, destination, passenger count, two ranked travel classes, five ranked individual seat numbers, and a separate booking start date and time. At the booking start time, the extension opens the official railway e-ticket site and attempts to carry those choices through the available booking flow. It stops before payment so the user can review the selection and complete checkout.
 
-The five seat preferences are specific seat numbers in priority order. When booking for multiple passengers, seats must be together. We still need to confirm how seat numbers map to trains and classes and what to do when no together-seated group includes a preferred number. A requested train, class, or seat may be unavailable; the extension must show what actually happened rather than claim a ticket was booked.
+The five seat preferences are specific seat numbers in priority order. When booking for multiple passengers, seats must be together. Prefer a group that includes a ranked preferred seat; otherwise choose another together-seated group as close as possible to the preferred seats on the site's seat map. We still need to confirm how seat numbers map to trains and classes. A requested train, class, or seat may be unavailable; the extension must show what actually happened rather than claim a ticket was booked.
 
 ## Current understanding of the flow
 
 1. Create one booking request with travel date, origin, destination, passenger count, and a separate booking start date and time.
 2. Show likely trains for that route and travel date. The user chooses a train departure time from the list.
-3. Collect first and second class choices plus five ranked individual seat numbers. For multiple passengers, consider only groups seated together, using the five numbers to rank candidate groups.
+3. Collect first and second class choices plus five ranked individual seat numbers. For multiple passengers, consider only groups seated together. Rank groups containing preferred seats first, then choose the nearest available together-seated group if none contains a preferred seat.
 4. Save the request locally and show its status and countdown.
 5. At the agreed booking start time, open the official site, search for the journey, and select an available option according to the saved ranking.
 6. Show the selected train, class, seats, and fare. Stop before payment and let the user finish checkout. Mark success only after the official site confirms the ticket.
@@ -35,6 +35,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [x] Confirm that seat preferences are five ranked individual seat numbers and the selected train time is a travel time.
 - [x] Confirm a separate booking start time, origin chosen for each trip, and a stop before payment.
 - [x] Confirm that multiple passengers must sit together.
+- [x] Confirm the seat fallback: choose another group together, as near as possible to preferred seats.
 - [ ] Resolve the open product questions below.
 - [ ] Inspect the current official booking UI, train search, seat map, login/verification, and payment flow using a test journey.
 - [ ] Check current site rules and Chrome Web Store requirements before implementing site automation.
@@ -60,7 +61,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 ## Open product questions
 
-1. If no together-seated group contains any of the five preferred seat numbers, should the extension choose another together-seated group or stop? Are seat numbers stable across trains and classes on the current site?
+1. Are seat numbers and seat-map positions stable across trains and classes on the current site? How should distance be measured when the map does not show physical proximity clearly?
 2. What is the maximum acceptable fare before handing off to payment?
 3. When the first train or class is unavailable, may the extension switch to another train or class automatically? In what order?
 4. Will the extension be used on one logged-in Chrome profile on a computer that stays awake at booking time? All times are assumed to use Asia/Dhaka unless you prefer otherwise.
