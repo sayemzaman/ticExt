@@ -1,5 +1,6 @@
 import { dhakaTime, dueStatus, validate, type Booking, type BookingInput } from '../lib/booking';
 import { getBookings } from '../lib/storage';
+import { railwaySearchUrl } from '../lib/railway';
 
 export default defineBackground(() => {
   // Serialize every mutation so an alarm and a form save cannot overwrite one another.
@@ -14,10 +15,10 @@ export default defineBackground(() => {
     const status = dueStatus(dhakaTime(row.bookingStart), Date.now());
     if (status === 'scheduled') { await chrome.alarms.create(id, { when: dhakaTime(row.bookingStart) }); return; }
     row.status = status;
-    row.note = status === 'missed' ? 'Start missed by more than two minutes. Reschedule this request.' : 'Official website opened. Automatic search and seat selection are not connected yet. Review your saved request in ticExt.';
+    row.note = status === 'missed' ? 'Start missed by more than two minutes. Reschedule this request.' : 'Official search opened with your route, date and first class choice. The site may require login. Automatic train and seat selection are not connected yet; payment remains manual.';
     await save(rows); // Claim before opening: a restart must not open duplicate booking tabs.
     if (status === 'opened') {
-      try { await chrome.tabs.create({ url: 'https://eticket.railway.gov.bd/' }); }
+      try { await chrome.tabs.create({ url: railwaySearchUrl(row) }); }
       catch { row.status = 'failed'; row.note = 'Could not open the official site. Reschedule to retry.'; await save(rows); }
     }
   }

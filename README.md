@@ -8,7 +8,9 @@ Set the route, travel date/time, passenger count, two preferred classes, five ra
 
 From and To are alphabetical station dropdowns. The bundled list was captured from the official railway homepage's public station data on 2026-11-18: 263 stations, of which 165 are enabled as origins. The list works offline; future railway station changes require refreshing the bundled snapshot. Selecting a station does not establish that a train runs on the selected route/date.
 
-At the scheduled start, this version opens the official railway website. **Live train schedules, automatic search, seat selection, and checkout detection are not implemented yet.** Enter the train from an official search for now. Keeping passengers together and choosing nearby seats are saved requirements; selection automation is still pending.
+Choose a route and travel date to see probable trains from a dated snapshot of 167 public railway timetables. The list accounts for running days, route direction, and overnight boarding. Selecting a train fills its departure time. You can explicitly enter a train manually after checking the official site if the snapshot has no match. Timetables do not establish seats, fares or current service.
+
+At the scheduled start, this version opens the official railway search with the route, date and first preferred class. **Automatic train/seat selection and checkout detection are not implemented yet.** The railway may require login before showing results. Keeping passengers together and choosing nearby seats are saved requirements; selection automation is still pending.
 
 Keep Chrome open and the computer awake. Starts more than two minutes late are marked missed instead of launching a stale attempt. Website opened does not mean ticket booked. Payment stays manual.
 
@@ -22,6 +24,8 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+To refresh the bundled public timetable snapshot manually: `node scripts/refresh-timetable.mjs`. This reads public Train Information data at a limited rate; it does not search availability, log in, or reserve seats. Check the generated diff and rerun the checks before committing a refreshed snapshot.
 
 This session used a local npm download because npm was absent: `node .tools/package/bin/npm-cli.js` can replace `npm` on this computer. `.tools` is ignored by Git.
 
