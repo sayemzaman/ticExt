@@ -6,6 +6,8 @@ Bangladesh Railway journey planner and booking-start scheduler for Chrome.
 
 Set the route, travel date/time, passenger count, two preferred classes, five ranked seat numbers, and a separate booking start. Choose alternate-train permission and a departure time window in advance. Save, edit, cancel, or reschedule requests. All times use Bangladesh time, regardless of the computer's timezone.
 
+From and To are alphabetical station dropdowns. The bundled list was captured from the official railway homepage's public station data on 2026-11-18: 263 stations, of which 165 are enabled as origins. The list works offline; future railway station changes require refreshing the bundled snapshot. Selecting a station does not establish that a train runs on the selected route/date.
+
 At the scheduled start, this version opens the official railway website. **Live train schedules, automatic search, seat selection, and checkout detection are not implemented yet.** Enter the train from an official search for now. Keeping passengers together and choosing nearby seats are saved requirements; selection automation is still pending.
 
 Keep Chrome open and the computer awake. Starts more than two minutes late are marked missed instead of launching a stale attempt. Website opened does not mean ticket booked. Payment stays manual.

@@ -46,6 +46,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 - [x] Scaffold the Manifest V3 extension and document build, test, and local loading commands.
 - [x] Build the booking request form with separate travel and booking start dates/times, route, passenger count, class ranking, five specific seat numbers, and a per-request alternate-train choice.
+- [x] Replace From and To text fields with station dropdowns from an official-site snapshot (263 destinations; 165 enabled origins). Validate selections and preserve them when editing.
 - [x] Validate dates, passenger limits, route, and the preference order; persist the request locally. Initial count range is 1–4; confirm current railway limit during site inspection.
 - [ ] Show probable train options and let the user choose one.
 - [x] Schedule, edit, cancel, restore, and display pending booking starts and statuses.

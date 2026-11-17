@@ -1,6 +1,7 @@
 import './style.css';
 import { CLASSES, validate, dhakaTime, type BookingInput } from '../../lib/booking';
 import { getBookings } from '../../lib/storage';
+import { STATIONS } from '../../lib/stations';
 const form = document.querySelector<HTMLFormElement>('#booking-form')!;
 const message = document.querySelector<HTMLParagraphElement>('#form-message')!;
 let editing: string | undefined;
@@ -8,6 +9,12 @@ const field = (name: string) => form.elements.namedItem(name) as HTMLInputElemen
 const format = (date: number) => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dhaka', dateStyle: 'medium', timeStyle: 'short' }).format(date);
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, text: string, className = '') {
   const node = document.createElement(tag); node.textContent = text; node.className = className; return node;
+}
+for (const name of ['origin', 'destination']) {
+  const select = form.elements.namedItem(name) as HTMLSelectElement;
+  for (const station of STATIONS) {
+    if (name === 'destination' || station.origin) select.add(new Option(station.name, station.name));
+  }
 }
 for (const name of ['firstClass', 'secondClass']) {
   const select = form.elements.namedItem(name) as HTMLSelectElement;

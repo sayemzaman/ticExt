@@ -1,3 +1,4 @@
+import { STATIONS } from './stations.ts';
 export type BookingStatus = 'scheduled' | 'opened' | 'missed' | 'cancelled' | 'failed';
 export interface BookingInput {
   origin: string; destination: string; travelDate: string; departureTime: string;
@@ -18,6 +19,7 @@ export function dhakaTime(value: string): number {
 export function validate(input: BookingInput, now = Date.now()): string[] {
   const errors: string[] = [];
   if (!input.origin.trim() || !input.destination.trim() || input.origin.trim().toLowerCase() === input.destination.trim().toLowerCase()) errors.push('Choose different departure and destination stations.');
+  if (!STATIONS.some(s => s.name === input.origin && s.origin) || !STATIONS.some(s => s.name === input.destination)) errors.push('Select departure and destination stations from the dropdowns.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.travelDate) || !/^\d{2}:\d{2}$/.test(input.departureTime) || !Number.isFinite(dhakaTime(`${input.travelDate}T${input.departureTime}`))) errors.push('Enter a valid travel date and departure time.');
   if (!input.train.trim()) errors.push('Enter the train name or number from the official search.');
   if (!Number.isInteger(input.passengers) || input.passengers < 1 || input.passengers > 4) errors.push('This version supports 1–4 passengers; the site must confirm its current limit.');

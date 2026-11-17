@@ -14,8 +14,10 @@ try {
   await page.getByText('A journey starts with a plan.').waitFor();
   const start = new Date(Date.now() + 3600000);
   const dhaka = date => new Date(date.getTime() + 6 * 3600000).toISOString().slice(0, 16);
-  await page.locator('[name=origin]').fill('Dhaka');
-  await page.locator('[name=destination]').fill('Chattogram');
+  assert.ok(await page.locator('select[name=origin] option').count() > 100);
+  assert.ok(await page.locator('select[name=destination] option').count() > 200);
+  await page.locator('[name=origin]').selectOption('Dhaka');
+  await page.locator('[name=destination]').selectOption('Chattogram');
   await page.locator('[name=travelDate]').fill(dhaka(new Date(start.getTime() + 86400000)).slice(0, 10));
   await page.locator('[name=departureTime]').fill('09:00');
   await page.locator('[name=train]').fill('Test train');
@@ -33,6 +35,8 @@ try {
   assert.ok(await worker.evaluate(async id => !!(await chrome.alarms.get(id)), saved[0].id));
   await page.reload(); await page.locator('.plan').waitFor();
   await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  assert.equal(await page.locator('[name=origin]').inputValue(), 'Dhaka');
+  assert.equal(await page.locator('[name=destination]').inputValue(), 'Chattogram');
   await page.locator('[name=passengers]').fill('3');
   await page.getByRole('button', { name: 'Save changes' }).click();
   await page.getByText('3 passenger(s)', { exact: false }).waitFor();
