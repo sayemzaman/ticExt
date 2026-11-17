@@ -12,9 +12,9 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 1. Create one booking request with travel date, origin, destination, passenger count, and a separate booking start date and time.
 2. Show likely trains for that route and travel date. The user chooses a train departure time from the list.
-3. Collect first and second class choices plus five ranked individual seat numbers. For multiple passengers, consider only groups seated together. Rank groups containing preferred seats first, then choose the nearest available together-seated group if none contains a preferred seat. The user chooses per request whether an unavailable train should trigger a search for another nearby train or stop for their decision.
+3. Collect first and second class choices plus five ranked individual seat numbers. For multiple passengers, consider only groups seated together. Rank groups containing preferred seats first, then choose the nearest available together-seated group if none contains a preferred seat. While setting up the request, the user chooses whether to try another nearby train if the selected one is unavailable. The extension follows that choice at booking time without waiting for input.
 4. Save the request locally and show its status and countdown.
-5. At the agreed booking start time, open the official site, search for the journey, and select an available option according to the saved ranking.
+5. At the agreed booking start time, open the official site, search for the journey, and select an available option according to the saved ranking and fallback settings. If the selected train is unavailable and alternates were disabled, stop the attempt and report the outcome.
 6. Show the selected train, class, seats, and fare. Stop before payment and let the user finish checkout. Mark success only after the official site confirms the ticket.
 
 ## Technical direction
@@ -36,7 +36,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [x] Confirm a separate booking start time, origin chosen for each trip, and a stop before payment.
 - [x] Confirm that multiple passengers must sit together.
 - [x] Confirm the seat fallback: choose another group together, as near as possible to preferred seats.
-- [x] Confirm that each booking request lets the user decide whether to try another train when the selected train is unavailable.
+- [x] Confirm that the user chooses the alternate-train rule when setting up each request; the extension does not wait for a decision at booking time.
 - [ ] Resolve the open product questions below.
 - [ ] Inspect the current official booking UI, train search, seat map, login/verification, and payment flow using a test journey.
 - [ ] Check current site rules and Chrome Web Store requirements before implementing site automation.
@@ -50,7 +50,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [ ] Show probable train options and let the user choose one.
 - [ ] Schedule, edit, cancel, restore, and display pending booking starts and statuses.
 - [ ] Open the official site at the scheduled time and fill the supported search and selection steps.
-- [ ] Handle unavailable trains/classes/seats with the agreed fallback rules; respect the per-request alternate-train choice, keep multiple passengers together, and show the chosen option and fare.
+- [ ] Handle unavailable trains/classes/seats with the saved fallback rules; stop and report when alternates are disabled, keep multiple passengers together, and show the chosen option and fare.
 - [ ] Hand off login and verification when required; stop before payment and detect and report official confirmation after the user finishes checkout.
 - [ ] Test the form, scheduling, missed alarms, fallback logic, and at least one supervised end-to-end trial.
 
