@@ -1,6 +1,6 @@
 # ticExt project plan
 
-Last reviewed: 2026-11-18 (Bangladesh time)
+Last reviewed: 2026-11-19 (Bangladesh time)
 
 ## Goal
 
@@ -39,6 +39,8 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [x] Confirm that the user chooses the alternate-train rule when setting up each request; the extension does not wait for a decision at booking time.
 - [ ] Resolve the open product questions below.
 - [ ] Inspect the current official booking UI, train search, seat map, login/verification, and payment flow using a test journey.
+- [x] Inspect a logged-in search and open coach layout for Dhaka–Chattogram on 28 November 2026, without selecting seats.
+- [ ] Inspect the verification/passenger/payment boundary; do not proceed through live seat reservation in automated tests.
 - [ ] Check current site rules and Chrome Web Store requirements before implementing site automation.
 - [x] Decide how to populate probable trains: dated snapshot of the public Train Information timetables, clearly labelled as estimates. Live availability must be checked during booking.
 
@@ -53,6 +55,8 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [x] Open the official search at the scheduled time with route, date and first class in its query parameters. Login may be required by the site.
 - [ ] Continue from the official search through train/class/seat selection using the saved choices.
 - [ ] Handle unavailable trains/classes/seats with the saved fallback rules; stop and report when alternates are disabled, keep multiple passengers together, and show the chosen option and fare.
+- [x] Implement and unit-test geometry-based seat-group planning with preferred seats and nearby fallback (not yet connected to live seat buttons).
+- [ ] Connect verified DOM seat positions and availability to the seat planner; recheck availability before each selection and report partial/failed selections accurately.
 - [ ] Hand off login and verification when required; stop before payment and detect and report official confirmation after the user finishes checkout.
 - [ ] Test the form, scheduling, missed alarms, fallback logic, and at least one supervised end-to-end trial.
 
@@ -82,6 +86,14 @@ Browser verification passed the real extension form, persistence after page relo
 Public homepage inspected in an isolated browser on 2026-11-18: route inputs are named `dest_from` and `dest_to`; the date field says `Pick a date`; a class dropdown and `SEARCH TRAINS` button are present. The class options are reflected in the form. Login/verification, search results, coach layouts, and the payment boundary still need inspection. No booking request or seat reservation was made.
 
 Public Train Information page inspected: timetable routes and running days are available without login; actual booking search checks login. `scripts/refresh-timetable.mjs` refreshes a local snapshot manually, with rate-limited public information requests and no credentials. The snapshot contains 167 trains with zero failed fetches. It may omit route matches where the source has inconsistent backward clock jumps; no services or availability should be inferred from an empty result. The adapter has tests for midnight crossings and intermediate-station boarding weekdays. Snapshot data is never a live availability claim.
+
+### Logged-in seat-layout inspection (2026-11-19)
+
+The user opened the layout in their signed-in Chrome session. Verified flow: search results → class-specific BOOK NOW → coach dropdown → seat buttons → Boarding Station → CONTINUE PURCHASE. On PARJOTAK EXPRESS (816), the open layout offered coaches UMA, CHA, SCHA and XTR2; a coach can be sold out while another has available seats. Coach selection alone changed the displayed layout and left the selected-seat total at zero. No seats were selected, no reservation request was made, and CONTINUE PURCHASE was not clicked during this inspection.
+
+Observed seat limit: four per order. Seat labels include the coach prefix (for example SCHA-6), so a number alone does not identify a seat across coaches. The SCHA map has an aisle between two seat blocks. One row is SCHA-7/SCHA-6 on the left and SCHA-5/SCHA-4 on the right; numeric neighbors are not always physically adjacent. Some coach layouts contain missing positions or partitions, which an adapter must preserve.
+
+`lib/seat-planner.ts` takes explicit coach, block, row, column and availability data. It chooses connected available seats in one coach/block over at most two adjacent rows, first maximizing preferred-seat matches, then honoring preference order, then minimizing physical-grid distance to known preferred seats. If no group meets these requirements it returns no selection. This is the initial conservative interpretation of together; it never splits a group across an aisle. It is tested on synthetic fixtures based on observed geometry, and is NOT yet wired to the live site or extension UI. A DOM adapter and class-selection workflow remain required.
 
 ## References
 
