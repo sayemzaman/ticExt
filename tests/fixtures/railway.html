@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
+app-single-trip,app-seat-layout,.seat_layout{display:block}.seat-row,.seat-in-row{display:flex}.seat-in-row{margin-right:40px}.btn-seat{width:47px;height:47px;margin:10px}.seat-hidden{visibility:hidden}.single-seat-class{display:inline-block;padding:20px}
+</style></head><body>
+<app-single-trip><div class="trip-name"><div class="trip-left-info"><h2>TEST EXPRESS (123)</h2></div></div>
+<div class="journey-start"><div class="journey-date">28 NOV, 09:00 AM</div></div>
+<div class="single-seat-class"><div class="seat-class-name">S_CHAIR</div><button class="book-now-btn" disabled>BOOK NOW</button></div>
+<div class="single-seat-class"><div class="seat-class-name">SNIGDHA</div><button class="book-now-btn" id="open">BOOK NOW</button></div>
+<div id="map"></div></app-single-trip>
+<script>
+window.seatClicks=0;window.purchaseClicks=0;window.coaches=[];
+document.getElementById('open').onclick=()=>{
+ document.getElementById('map').innerHTML='<app-seat-layout><select id="select-bogie"><option value="0">UMA - 0 Seat(s)</option><option value="1">SCHA - 8 Seat(s)</option></select><div class="seat_layout"></div><button class="btn-close-seat-layout">Close</button><button class="continue-btn">CONTINUE PURCHASE</button></app-seat-layout>';
+ const select=document.getElementById('select-bogie');
+ function render(){
+   const coach=select.value==='0'?'UMA':'SCHA';window.coaches.push(coach);
+   const rows=[[7,6,5,4],[11,10,9,8]];
+   document.querySelector('.seat_layout').innerHTML=rows.map(row=>'<div class="seat-row">'+[0,1].map(block=>'<div class="seat-in-row">'+row.slice(block*2,block*2+2).map(n=>'<div class="seat-wrapper"><button title="'+coach+'-'+n+'" class="btn-seat '+(coach==='UMA'?'seat-booked':'seat-available')+'" '+(coach==='UMA'?'disabled':'')+'>'+coach+'-'+n+'</button></div>').join('')+'</div>').join('')+'</div>').join('');
+   document.querySelectorAll('.btn-seat').forEach(b=>b.onclick=()=>{window.seatClicks++});
+ }
+ select.onchange=render;render();
+ document.querySelector('.continue-btn').onclick=()=>window.purchaseClicks++;
+ document.querySelector('.btn-close-seat-layout').onclick=()=>document.getElementById('map').replaceChildren();
+};
+</script></body></html>

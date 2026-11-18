@@ -54,9 +54,11 @@ The five seat preferences are specific seat numbers in priority order. When book
 - [x] Schedule, edit, cancel, restore, and display pending booking starts and statuses.
 - [x] Open the official search at the scheduled time with route, date and first class in its query parameters. Login may be required by the site.
 - [ ] Continue from the official search through train/class/seat selection using the saved choices.
+- [x] Connect a tab-bound site assistant to train matching, preferred-class BOOK NOW, coach scanning, and a seat-group recommendation. Verified against local fixtures; live adapter verification remains pending.
 - [ ] Handle unavailable trains/classes/seats with the saved fallback rules; stop and report when alternates are disabled, keep multiple passengers together, and show the chosen option and fare.
-- [x] Implement and unit-test geometry-based seat-group planning with preferred seats and nearby fallback (not yet connected to live seat buttons).
-- [ ] Connect verified DOM seat positions and availability to the seat planner; recheck availability before each selection and report partial/failed selections accurately.
+- [x] Implement and unit-test geometry-based seat-group planning with preferred seats and nearby fallback.
+- [x] Connect the DOM seat-map reader to the group planner in preview mode; recheck the group before outlining recommendations, without clicking seats.
+- [ ] Apply seat selections, recheck availability before each selection and report partial/failed reservations accurately. No live reservation tests.
 - [ ] Hand off login and verification when required; stop before payment and detect and report official confirmation after the user finishes checkout.
 - [ ] Test the form, scheduling, missed alarms, fallback logic, and at least one supervised end-to-end trial.
 
@@ -77,7 +79,7 @@ The five seat preferences are specific seat numbers in priority order. When book
 
 The extension implements a planner page, serialized background storage updates, alarms, editing/cancellation, startup alarm restoration, and a two-minute late-start cutoff. The probable-train dropdown uses a snapshot of 167 public timetables; changing route or date clears the previous train. Manual entry is an explicit fallback. Saved alternate-train timing is configurable (initial value 120 minutes). Only the two preferred classes are allowed by the planned automation.
 
-At the scheduled start, the extension opens `/booking/train/search` using the site's `fromcity`, `tocity`, `doj` (dd-MMM-yyyy), and `class` query parameters. The site may redirect to login. Automatic train/class/seat selection is not connected. There is no content script or request to a seat reservation endpoint yet. The next integration task is inspection of search results and coach/seat maps in a user-authenticated session before adding automatic selections. Do not mark a booking successful merely because a tab opened.
+At the scheduled start, the extension opens `/booking/train/search` using the site's `fromcity`, `tocity`, `doj` (dd-MMM-yyyy), and `class` query parameters. A content script acts only in the tab bound to that request by the background worker. It checks route/date, matches train/time, tries class-specific BOOK NOW buttons and scans coach maps. It outlines the recommended group without clicking seat buttons or Continue Purchase. The result is stored as `recommendation` and `assistantStatus`; the booking status remains `opened`, never confirmed. The site may redirect to login. Seat reservation and checkout automation remain unimplemented.
 
 Build and type-check pass. Unit tests cover validation, Bangladesh timezone conversion, and the late-start cutoff. See README.md for commands and the isolated browser test. npm audit has an unresolved picomatch advisory in development dependencies, documented in README.md.
 
@@ -93,7 +95,13 @@ The user opened the layout in their signed-in Chrome session. Verified flow: sea
 
 Observed seat limit: four per order. Seat labels include the coach prefix (for example SCHA-6), so a number alone does not identify a seat across coaches. The SCHA map has an aisle between two seat blocks. One row is SCHA-7/SCHA-6 on the left and SCHA-5/SCHA-4 on the right; numeric neighbors are not always physically adjacent. Some coach layouts contain missing positions or partitions, which an adapter must preserve.
 
-`lib/seat-planner.ts` takes explicit coach, block, row, column and availability data. It chooses connected available seats in one coach/block over at most two adjacent rows, first maximizing preferred-seat matches, then honoring preference order, then minimizing physical-grid distance to known preferred seats. If no group meets these requirements it returns no selection. This is the initial conservative interpretation of together; it never splits a group across an aisle. It is tested on synthetic fixtures based on observed geometry, and is NOT yet wired to the live site or extension UI. A DOM adapter and class-selection workflow remain required.
+`lib/seat-planner.ts` takes explicit coach, block, row, column and availability data. It chooses connected available seats in one coach/block over at most two adjacent rows, first maximizing preferred-seat matches, then honoring preference order, then minimizing physical-grid distance to known preferred seats. If no group meets these requirements it returns no selection. This is the initial conservative interpretation of together; it never splits a group across an aisle. The DOM adapter now feeds it seat positions and reports a recommendation, but never reserves seats.
+
+### Site assistant preview handoff
+
+`lib/railway-dom.ts` uses the public site's `app-single-trip`, `.single-seat-class`, `.book-now-btn`, `app-seat-layout`, `#select-bogie`, `.seat_layout`, `.seat-row`, `.seat-in-row`, `.seat-wrapper` and `.btn-seat` controls. Empty seat slots are preserved; two aisle blocks and one visible floor are required. Unknown layouts, selected seats, or pending reservations stop the run. Sold-out coaches are read as unavailable; all coaches are compared before returning to the recommended coach and rechecking availability. The route-bound content script stores no account information and never clicks seat buttons or Continue Purchase.
+
+Verification: typecheck, production build, 14 unit tests, scheduler browser test, and assistant fixture browser test pass. Assistant fixtures exercise second-class fallback, coach scanning, alternate train opt-in and time limits, unknown geometry, login detection, preserved ordinary tabs and no rerun of completed previews. They assert zero seat clicks and zero checkout clicks. Real-site end-to-end verification of this adapter is still pending; fixture success does not prove live-site compatibility. Next: supervised preview verification, then implement seat reservation with partial-failure handling and the prepayment handoff.
 
 ## References
 

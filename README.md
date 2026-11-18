@@ -10,7 +10,9 @@ From and To are alphabetical station dropdowns. The bundled list was captured fr
 
 Choose a route and travel date to see probable trains from a dated snapshot of 167 public railway timetables. The list accounts for running days, route direction, and overnight boarding. Selecting a train fills its departure time. You can explicitly enter a train manually after checking the official site if the snapshot has no match. Timetables do not establish seats, fares or current service.
 
-At the scheduled start, this version opens the official railway search with the route, date and first preferred class. **Automatic train/seat selection and checkout detection are not implemented yet.** The railway may require login before showing results. Keeping passengers together and choosing nearby seats are saved requirements; selection automation is still pending.
+At the scheduled start, this version opens the official search, matches the requested train and time, and tries the two classes in order. If enabled, alternate trains are tried within the saved time window after the selected train. The assistant opens class layouts and reads each coach to recommend a connected group, preferring your seat numbers and nearby seats. It outlines the recommendation in blue and reports it in the saved plan. **Outlines are suggestions: seats are not selected or reserved. Seat selection, Continue Purchase, and payment are still manual.**
+
+The assistant runs only in the tab it created for that request. Ordinary railway tabs are left alone. Login/verification, changed layouts, existing seat selections and unrecognized coach geometry stop the preview. This adapter has been verified against isolated DOM fixtures based on the observed site and public UI code; it still needs supervised verification against a live session. No reservation or purchase actions are invoked by this version.
 
 Keep Chrome open and the computer awake. Starts more than two minutes late are marked missed instead of launching a stale attempt. Website opened does not mean ticket booked. Payment stays manual.
 
@@ -41,6 +43,7 @@ This session used a local npm download because npm was absent: `node .tools/pack
 ```sh
 npx playwright install chromium
 node tests/browser.mjs
+node tests/assistant.mjs
 ```
 
 If using this session's downloaded browser on Windows, set `$env:PLAYWRIGHT_BROWSERS_PATH='D:\ticExt\.tools\browsers'` first. The browser test uses an isolated profile and intercepts railway traffic; it never reserves real seats.

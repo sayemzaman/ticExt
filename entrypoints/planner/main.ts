@@ -110,6 +110,7 @@ async function render() {
       }; card.append(edit);
     }
     if (row.note) card.append(el('p', row.note)); container.append(card);
+    if (row.recommendation) card.append(el('p', `Suggested: ${row.recommendation.train} · ${row.recommendation.travelClass} · ${row.recommendation.seats.join(', ')}. Not reserved.`));
   }
 }
 chrome.storage.onChanged.addListener(() => { void render(); });

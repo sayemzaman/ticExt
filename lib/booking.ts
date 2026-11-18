@@ -7,6 +7,9 @@ export interface BookingInput {
 }
 export interface Booking extends BookingInput {
   id: string; status: BookingStatus; createdAt: number; note?: string;
+  tabId?: number;
+  assistantStatus?: 'preparing' | 'layout-ready' | 'needs-login' | 'blocked';
+  recommendation?: { train: string; travelClass: string; coach: string; seats: string[] };
 }
 export const CLASSES = ['S_CHAIR', 'SNIGDHA', 'AC_S', 'AC_B', 'F_SEAT', 'F_BERTH', 'F_CHAIR', 'AC_CHAIR', 'SHOVAN', 'SHULOV'];
 export function dhakaTime(value: string): number {
